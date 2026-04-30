@@ -1,23 +1,31 @@
 ﻿import User from '../models/user.js';
+import BaseController from './baseController.js';
 
-class UserController {
+class UserController extends BaseController {
   async getAllUsers(req, res) {
     try {
       const users = await User.findAll();
       const [firstUser, ...rest] = users;
       
-      res.status(200).json({
-        success: true,
+      // Using destructuring for response
+      const responseData = {
         count: users.length,
         data: users,
         firstUser: firstUser ? firstUser.name : null
-      });
+      };
+      
+      return this.successResponse(
+        res, 
+        'Users retrieved successfully', 
+        responseData, 
+        200
+      );
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching users',
-        error: error.message
-      });
+      return this.errorResponse(
+        res, 
+        'Error fetching users: ' + error.message, 
+        500
+      );
     }
   }
 
@@ -27,23 +35,25 @@ class UserController {
       const user = await User.findById(parseInt(id));
       
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        });
+        return this.errorResponse(res, 'User not found', 404);
       }
       
+      // Using object destructuring
       const { id: userId, name, created_at } = user;
-      res.status(200).json({
-        success: true,
-        data: { userId, name, created_at }
-      });
+      const responseData = { userId, name, created_at };
+      
+      return this.successResponse(
+        res, 
+        'User retrieved successfully', 
+        responseData, 
+        200
+      );
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching user',
-        error: error.message
-      });
+      return this.errorResponse(
+        res, 
+        'Error fetching user: ' + error.message, 
+        500
+      );
     }
   }
 
@@ -52,25 +62,23 @@ class UserController {
       const { name } = req.body;
       
       if (!name || name.trim() === '') {
-        return res.status(400).json({
-          success: false,
-          message: 'Name is required'
-        });
+        return this.errorResponse(res, 'Name is required', 400);
       }
       
       const user = await User.create({ name: name.trim() });
       
-      res.status(201).json({
-        success: true,
-        message: 'User created successfully',
-        data: user
-      });
+      return this.successResponse(
+        res, 
+        'User created successfully', 
+        user, 
+        201
+      );
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error creating user',
-        error: error.message
-      });
+      return this.errorResponse(
+        res, 
+        'Error creating user: ' + error.message, 
+        500
+      );
     }
   }
 
@@ -80,32 +88,27 @@ class UserController {
       const { name } = req.body;
       
       if (!name || name.trim() === '') {
-        return res.status(400).json({
-          success: false,
-          message: 'Name is required'
-        });
+        return this.errorResponse(res, 'Name is required', 400);
       }
       
       const updatedUser = await User.update(parseInt(id), { name: name.trim() });
       
       if (!updatedUser) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        });
+        return this.errorResponse(res, 'User not found', 404);
       }
       
-      res.status(200).json({
-        success: true,
-        message: 'User updated successfully',
-        data: updatedUser
-      });
+      return this.successResponse(
+        res, 
+        'User updated successfully', 
+        updatedUser, 
+        200
+      );
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error updating user',
-        error: error.message
-      });
+      return this.errorResponse(
+        res, 
+        'Error updating user: ' + error.message, 
+        500
+      );
     }
   }
 
@@ -115,22 +118,21 @@ class UserController {
       const deleted = await User.delete(parseInt(id));
       
       if (!deleted) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        });
+        return this.errorResponse(res, 'User not found', 404);
       }
       
-      res.status(200).json({
-        success: true,
-        message: 'User deleted successfully'
-      });
+      return this.successResponse(
+        res, 
+        'User deleted successfully', 
+        null, 
+        200
+      );
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Error deleting user',
-        error: error.message
-      });
+      return this.errorResponse(
+        res, 
+        'Error deleting user: ' + error.message, 
+        500
+      );
     }
   }
 }
