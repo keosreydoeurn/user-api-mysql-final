@@ -1,6 +1,7 @@
 ﻿import express from 'express';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/productRoutes.js';
 import Database from './config/db.js';
 
 dotenv.config();
@@ -12,20 +13,31 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
   res.json({
-    message: '✅ User API with MySQL',
-    version: '1.0.0',
-    database: 'MySQL',
+    message: '✅ API with MySQL and OOP',
+    version: '2.0.0',
     endpoints: {
-      getAllUsers: 'GET /api/users',
-      getUserById: 'GET /api/users/:id',
-      createUser: 'POST /api/users',
-      updateUser: 'PUT /api/users/:id',
-      deleteUser: 'DELETE /api/users/:id'
+      users: {
+        getAll: 'GET /api/users',
+        getOne: 'GET /api/users/:id',
+        create: 'POST /api/users',
+        update: 'PUT /api/users/:id',
+        delete: 'DELETE /api/users/:id'
+      },
+      products: {
+        getAll: 'GET /api/products',
+        getOne: 'GET /api/products/:id',
+        create: 'POST /api/products',
+        update: 'PUT /api/products/:id',
+        delete: 'DELETE /api/products/:id',
+        search: 'GET /api/products/search?name=keyword&minPrice=10&maxPrice=100',
+        lowStock: 'GET /api/products/low-stock?threshold=5'
+      }
     }
   });
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -48,11 +60,11 @@ const PORT = process.env.PORT || 3000;
 const startServer = async () => {
   try {
     await Database.initialize();
-    
+
     app.listen(PORT, () => {
       console.log(`\n🚀 Server running on http://localhost:${PORT}`);
       console.log(`📝 API Docs: http://localhost:${PORT}`);
-      console.log(`💾 Database: MySQL on port ${process.env.DB_PORT || 3307}\n`);
+      console.log(`💾 Database: MySQL\n`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
